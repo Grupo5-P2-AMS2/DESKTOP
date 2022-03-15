@@ -92,7 +92,7 @@ public class MainApp extends Application {
            	var next = cur.next();
             	Object title = next.get("title");
             	Object description = next.get("description");
-            	courseData.add(new Course((String)title, (String)description));
+            	courseData.add(new Course((String)title, (String)description, (String) next.get("_id").toString()));
             }
 		}
 	}
