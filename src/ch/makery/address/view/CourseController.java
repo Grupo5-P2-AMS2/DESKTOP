@@ -16,155 +16,123 @@ import com.mongodb.client.MongoCursor;
 
 import ch.makery.address.MainApp;
 import ch.makery.address.connection.Connection;
-
+import ch.makery.address.model.Course;
 public class CourseController {
 
-	@FXML
-	private ListView<String> courseListView;
-	
+	   @FXML
+	    private TableView<Course> courseTable;
+	    @FXML
+	    private TableColumn<Course, String> titleColumn;
+	    @FXML
+	    private TableColumn<Course, String> descriptionColumn;
+
+	    @FXML
+	    private Label titleLabel;
+	    @FXML
+	    private Label descriptionLabel;
+	    @FXML
+	    private Label oidLabel;
+	    @FXML
+	    private Label subscribersLabel;
+	    @FXML
+	    private Label elementsLabel;
+	    @FXML
+	    private Label tasksLabel;
+	    @FXML
+	    private Label vrTasksLabel;
+
+	    // Reference to the main application.
+	    private MainApp mainApp;
+
+	    /**
+	     * The constructor.
+	     * The constructor is called before the initialize() method.
+	     */
+	    public CourseController() {
+	    }
+
+	    /**
+	     * Initializes the controller class. This method is automatically called
+	     * after the fxml file has been loaded.
+	     */
+	    @FXML
+	    private void initialize() {
+	        // Initialize the person table with the two columns.
+	        titleColumn.setCellValueFactory(
+	                cellData -> cellData.getValue().titleProperty());
+	        descriptionColumn.setCellValueFactory(
+	                cellData -> cellData.getValue().descriptionProperty());
+
+	        // Clear person details.
+	        //showCourseDetails(null);
+
+	        // Listen for selection changes and show the person details when changed.
+	        //courseTable.getSelectionModel().selectedItemProperty().addListener(
+	          //      (observable, oldValue, newValue) -> showCourseDetails(newValue));
+	    }
+
+	    /**
+	     * Is called by the main application to give a reference back to itself.
+	     * 
+	     * @param mainApp
+	     */
+	    public void setMainApp(MainApp mainApp) {
+	        this.mainApp = mainApp;
+
+	        // Add observable list data to the table
+	        courseTable.setItems(mainApp.getCourseData());
+	    }
+	    
+	    /**
+	     * Fills all text fields to show details about the person.
+	     * If the specified person is null, all text fields are cleared.
+	     * 
+	     * @param person the person or null
+	     */
+	    /*private void showPersonDetails(Course course) {
+	        if (course != null) {
+	            // Fill the labels with info from the person object.
+	            firstNameLabel.setText(person.getFirstName());
+	            lastNameLabel.setText(person.getLastName());
+	            streetLabel.setText(person.getStreet());
+	            postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
+	            cityLabel.setText(person.getCity());
+
+	            birthdayLabel.setText(DateUtil.format(person.getBirthday()));
+
+	        } else {
+	            // Person is null, remove all the text.
+	            firstNameLabel.setText("");
+	            lastNameLabel.setText("");
+	            streetLabel.setText("");
+	            postalCodeLabel.setText("");
+	            cityLabel.setText("");
+	            birthdayLabel.setText("");
+	        }
+	    }
+	    
+	    /**
+	     * Called when the user clicks the new button. Opens a dialog to edit
+	     * details for a new person.
+	     */
+	   /* @FXML
+	    private void handleNewCourse() {
+	    	Course tempPerson = new Course();
+	        boolean okClicked = mainApp.showCourseEditDialog(tempPerson);
+	        if (okClicked) {
+	            mainApp.getCourseData().add(tempPerson);
+	        }
+	    }*/
+	  
+	    
+	    /**
+	     * Called when the user clicks on the delete button.
+	     */
     @FXML
-    private Label courseNameLabel;
-    
-    // Reference to the main application.
-    private MainApp mainApp; 
-
-    private MongoCollection<Document> collection;
-    
-    /**
-     * The constructor.
-     * The constructor is called before the initialize() method.
-     */
-    public CourseController() {
-	}
-
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
-    @FXML
-    private void initialize() {
-    	// Initialize the course list.
-    	ObservableList<String> courses = FXCollections.observableArrayList();
-    	setCollection();
-    	
-    	System.out.println("Collection set");
-    	
-    	 try (MongoCursor<Document> cur = collection.find().iterator()) {
-
-             while (cur.hasNext()) {
-            	System.out.println("next");
-             	Object docId = cur.next().get("_id");
-             	Object courseName = ((Document) docId).get("title");
-             	Object description = ((Document) docId).get("description");
-             	
-                 courses.add((String) description);
-                 System.out.println(description);
-             }
- 		}
-    	 
-    	 courseListView = new ListView<String>();
-    	 
-    	 courseListView.setItems(courses);
-        
-
-        // Listen for selection changes and show the person details when changed.
-        /*courseListView.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showPersonDetails(newValue));*/
-    }
-    
-    private void setCollection() {
-    	this.collection = new Connection().connect();
-    }
-
-	public void setMainApp(MainApp mainApp) {
-		this.mainApp = mainApp;
-		
-	}
-
-    /**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     * @param mainApp
-     */
-   /* public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
-
-        // Add observable list data to the table
-        courseListView.setItems(mainApp.getPersonData());
-    }*/
-    
-    /**
-     * Fills all text fields to show details about the person.
-     * If the specified person is null, all text fields are cleared.
-     * 
-     * @param person the person or null
-     */
-    /*private void showPersonDetails(Person person) {
-        if (person != null) {
-            // Fill the labels with info from the person object.
-            firstNameLabel.setText(person.getFirstName());
-            lastNameLabel.setText(person.getLastName());
-            streetLabel.setText(person.getStreet());
-            postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
-            cityLabel.setText(person.getCity());
-
-            birthdayLabel.setText(DateUtil.format(person.getBirthday()));
-
-        } else {
-            // Person is null, remove all the text.
-            firstNameLabel.setText("");
-            lastNameLabel.setText("");
-            streetLabel.setText("");
-            postalCodeLabel.setText("");
-            cityLabel.setText("");
-            birthdayLabel.setText("");
-        }
-    }*/
-    
-    /**
-     * Called when the user clicks the new button. Opens a dialog to edit
-     * details for a new person.
-     */
-    /*@FXML
-    private void handleNewPerson() {
-        Person tempPerson = new Person();
-        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
-        if (okClicked) {
-            mainApp.getPersonData().add(tempPerson);
-        }
-    }*/
-
-    /**
-     * Called when the user clicks the edit button. Opens a dialog to edit
-     * details for the selected person.
-     */
-   /* @FXML
-    private void handleEditPerson() {
-        Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
-            if (okClicked) {
-                showPersonDetails(selectedPerson);
-            }
-
-        } else {
-            // Nothing selected.
-            Dialogs.create()
-                .title("No Selection")
-                .masthead("No Person Selected")
-                .message("Please select a person in the table.")
-                .showWarning();
-        }
-    }
-    
-    /**
-     * Called when the user clicks on the delete button.
-     */
-   /* @FXML
-    private void handleDeletePerson() {
-        int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
+    private void handleDeleteCourse() {
+        int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            personTable.getItems().remove(selectedIndex);
+        	courseTable.getItems().remove(selectedIndex);
         } else {
             // Nothing selected.
             Dialogs.create()
@@ -173,5 +141,5 @@ public class CourseController {
                 .message("Please select a person in the table.")
                 .showWarning();
         }
-    }*/
+    }
 }

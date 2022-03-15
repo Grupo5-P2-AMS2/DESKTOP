@@ -1,20 +1,20 @@
 package ch.makery.address.model;
 
-import java.time.LocalDate;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Course {
 
-	private final StringProperty courseName;
+	private final StringProperty title;
 	private final StringProperty description;
-	private final ObjectProperty<LocalDate> datePropertyMaybe;
-
+	private final StringProperty oid;
+	private final ObjectProperty<Object>[] suscribers;
+	private final ObjectProperty<Object>[] elements;
+	private final ObjectProperty<Object>[] tasks;
+	private final ObjectProperty<Object>[] vrTasks;
+	
 	/**
 	 * Default constructor.
 	 */
@@ -28,26 +28,43 @@ public class Course {
 	 * @param firstName
 	 * @param lastName
 	 */
-	public Course(String courseName, String description) {
-		this.courseName = new SimpleStringProperty(courseName);
+	public Course(String title, String description) {
+		this.title = new SimpleStringProperty(title);
 		this.description = new SimpleStringProperty(description);
 		
-		// Some initial dummy data, just for convenient testing.
-		this.datePropertyMaybe = new SimpleObjectProperty<LocalDate>(LocalDate.of(1999, 2, 21));
+		this.oid = null;
+		this.suscribers = null;
+		this.elements = null;
+		this.tasks = null;
+		this.vrTasks = null;
+		
 	}
 	
-	public String getCourseName() {
-		return courseName.get();
+	public Course(StringProperty title, StringProperty description, StringProperty oid,
+			ObjectProperty<Object>[] suscribers, ObjectProperty<Object>[] elements, ObjectProperty<Object>[] tasks,
+			ObjectProperty<Object>[] vrTasks) {
+		super();
+		this.title = title;
+		this.description = description;
+		this.oid = oid;
+		this.suscribers = suscribers;
+		this.elements = elements;
+		this.tasks = tasks;
+		this.vrTasks = vrTasks;
 	}
 
-	public void setCourseName(String courseName) {
-		this.courseName.set(courseName);
+	public String getTitle() {
+		return title.get();
+	}
+
+	public void setCourseName(String title) {
+		this.title.set(title);
 	}
 	
-	public StringProperty courseNameProperty() {
-		return courseName;	
+	public StringProperty titleProperty() {
+		return title;	
 	}
-
+	
 	public String getDescription() {
 		return description.get();
 	}
@@ -57,18 +74,20 @@ public class Course {
 	}
 	
 	public StringProperty descriptionProperty() {
-		return description;
-	}
-
-	public LocalDate getThis() {
-		return datePropertyMaybe.get();
-	}
-
-	public void setThis(LocalDate date) {
-		this.datePropertyMaybe.set(date);
+		return description;	
 	}
 	
-	public ObjectProperty<LocalDate> thisProperty() {
-		return datePropertyMaybe;
+
+	public String getOid() {
+		return oid.get();
 	}
+
+	public void setOid(String oid) {
+		this.oid.set(oid);
+	}
+	
+	public StringProperty oidProperty() {
+		return oid;
+	}
+
 }
