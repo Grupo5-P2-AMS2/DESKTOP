@@ -128,7 +128,10 @@ public class CourseController {
 	        boolean okClicked = mainApp.showNewCourseDialog(tempCourse);
 	        if (okClicked) {
 	            mainApp.getCourseData().add(tempCourse);
-      
+	            MainApp.collection.insertOne(new Document()
+	                    .append("_id", tempCourse.getOid())
+	                    .append("title", tempCourse.getTitle())
+	                    .append("description", tempCourse.getDescription()));
 	        }
 	    }
 	  
@@ -140,7 +143,8 @@ public class CourseController {
     private void handleDeleteCourse() {
         int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-        	Bson query = eq("_id", new ObjectId("622794b2acc0dbccea8388b4"));
+        	String oid = courseTable.getItems().get(selectedIndex).getOid();
+        	Bson query = eq("_id", new ObjectId(oid));
         	MainApp.collection.deleteOne(query);
         	courseTable.getItems().remove(selectedIndex);
         } else {

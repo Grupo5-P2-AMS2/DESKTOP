@@ -19,20 +19,21 @@ public class Course {
 	 * Default constructor.
 	 */
 	public Course() {
-		this(null, null);
+		this(null, null, null);
 	}
 	
 	/**
 	 * Constructor with some initial data.
+	 * @param oid 
 	 * 
 	 * @param firstName
 	 * @param lastName
 	 */
-	public Course(String title, String description) {
+	public Course(String title, String description, String oid) {
 		this.title = new SimpleStringProperty(title);
 		this.description = new SimpleStringProperty(description);
+		this.oid = new SimpleStringProperty(oid);
 		
-		this.oid = null;
 		this.suscribers = null;
 		this.elements = null;
 		this.tasks = null;

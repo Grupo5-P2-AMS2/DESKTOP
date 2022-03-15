@@ -4,8 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.controlsfx.dialog.Dialogs;
 
+import ch.makery.address.MainApp;
 import ch.makery.address.model.Course;
 
 /**
@@ -19,16 +22,6 @@ public class NewCourseDialogController {
     private TextField titleField;
     @FXML
     private TextField descriptionField;
-    @FXML
-    private TextField oidField;
-    @FXML
-    private TextField suscribersField;
-    @FXML
-    private TextField elementsField;
-    @FXML
-    private TextField tasksField;
-    @FXML
-    private TextField vrTasksField;
 
     private Stage dialogStage;
     private Course course;
@@ -61,11 +54,7 @@ public class NewCourseDialogController {
 
         titleField.setText(course.getTitle());
         descriptionField.setText(course.getDescription());
-        oidField.setText(null);
-        suscribersField.setText(null);
-        elementsField.setText(null);
-        tasksField.setText(null);
-        vrTasksField.setText(null);
+        course.setOid(new ObjectId().toString());
         
     }
 

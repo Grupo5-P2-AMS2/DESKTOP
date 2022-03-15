@@ -65,7 +65,7 @@
                   </GridPane>
                   <HBox alignment="BOTTOM_RIGHT" layoutX="119.0" layoutY="259.0" spacing="5.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0">
                      <children>
-                        <Button mnemonicParsing="false" text="Create" />
+                        <Button mnemonicParsing="false" onAction="#handleNewCourse" text="Create" />
                         <Button mnemonicParsing="false" onAction="#handleDeleteCourse" text="Delete" />
                      </children>
                   </HBox>
