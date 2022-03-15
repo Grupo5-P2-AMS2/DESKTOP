@@ -3,12 +3,14 @@ package ch.makery.address;
 import java.io.IOException;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 
 import ch.makery.address.connection.Connection;
 import ch.makery.address.view.CourseController;
+import ch.makery.address.view.NewCourseDialogController;
 import ch.makery.address.model.Course;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -75,23 +77,22 @@ public class MainApp extends Application {
     private BorderPane rootLayout;
 
     private ObservableList<Course> courseData = FXCollections.observableArrayList();
-
+    public static MongoCollection<Document> collection;
     
 	/**
 	 * Constructor
 	 */
 	public MainApp() {
 		// Add some sample data
-		 MongoCollection<Document> collection = new Connection().connect();
+		 collection = new Connection().connect();
 		try (MongoCursor<Document> cur = collection.find().iterator()) {
 
             while (cur.hasNext()) {
            	System.out.println("next");
-            	Object docId = cur.next().get("_id");
-            	Object title = ((Document) docId).get("title");
-            	Object description = ((Document) docId).get("description");
+           	var next = cur.next();
+            	Object title = next.get("title");
+            	Object description = next.get("description");
             	courseData.add(new Course((String)title, (String)description));
-
             }
 		}
 	}
@@ -168,26 +169,26 @@ public class MainApp extends Application {
      * 
      * @param person the person object to be edited
      * @return true if the user clicked OK, false otherwise.
-     *//*
-    public boolean showCourseEditDialog(Course course) {
+     */
+    public boolean showNewCourseDialog(Course course) {
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("view/PersonEditDialog.fxml"));
+            loader.setLocation(MainApp.class.getResource("view/NewCourseDialog.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Person");
+            dialogStage.setTitle("New Course");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
             dialogStage.setScene(scene);
 
             // Set the person into the controller.
-            CourseController controller = loader.getController();
+            NewCourseDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
-            controller.setPerson(course);
+            controller.setCourse(course);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
@@ -197,7 +198,7 @@ public class MainApp extends Application {
             e.printStackTrace();
             return false;
         }
-    }*/	
+    }	
     
 	/**
 	 * Returns the main stage.

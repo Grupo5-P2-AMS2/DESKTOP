@@ -1,5 +1,7 @@
 package ch.makery.address.view;
 
+import org.bson.types.ObjectId;
+import static com.mongodb.client.model.Filters.eq;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,12 +9,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.controlsfx.dialog.Dialogs;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.util.JSON;
 
 import ch.makery.address.MainApp;
 import ch.makery.address.connection.Connection;
@@ -115,14 +122,15 @@ public class CourseController {
 	     * Called when the user clicks the new button. Opens a dialog to edit
 	     * details for a new person.
 	     */
-	   /* @FXML
+	    @FXML
 	    private void handleNewCourse() {
-	    	Course tempPerson = new Course();
-	        boolean okClicked = mainApp.showCourseEditDialog(tempPerson);
+	    	Course tempCourse = new Course();
+	        boolean okClicked = mainApp.showNewCourseDialog(tempCourse);
 	        if (okClicked) {
-	            mainApp.getCourseData().add(tempPerson);
+	            mainApp.getCourseData().add(tempCourse);
+      
 	        }
-	    }*/
+	    }
 	  
 	    
 	    /**
@@ -132,6 +140,8 @@ public class CourseController {
     private void handleDeleteCourse() {
         int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+        	Bson query = eq("_id", new ObjectId("622794b2acc0dbccea8388b4"));
+        	MainApp.collection.deleteOne(query);
         	courseTable.getItems().remove(selectedIndex);
         } else {
             // Nothing selected.
@@ -142,4 +152,5 @@ public class CourseController {
                 .showWarning();
         }
     }
+
 }

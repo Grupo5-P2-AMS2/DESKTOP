@@ -57,7 +57,7 @@ public class Course {
 		return title.get();
 	}
 
-	public void setCourseName(String title) {
+	public void setTitle(String title) {
 		this.title.set(title);
 	}
 	
