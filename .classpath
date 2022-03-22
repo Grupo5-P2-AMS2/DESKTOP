@@ -36,5 +36,24 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Lorenzo/.m2/repository/org/mongodb/mongo-java-driver/3.12.10/mongo-java-driver-3.12.10.jar" sourcepath="C:/Users/Lorenzo/.m2/repository/org/mongodb/mongo-java-driver/3.12.10/mongo-java-driver-3.12.10-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="module" value="true"/>
+			<attribute name="maven.groupId" value="org.mongodb"/>
+			<attribute name="maven.artifactId" value="mongo-java-driver"/>
+			<attribute name="maven.version" value="3.12.10"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Lorenzo/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" sourcepath="C:/Users/Lorenzo/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="com.googlecode.json-simple"/>
+			<attribute name="maven.artifactId" value="json-simple"/>
+			<attribute name="maven.version" value="1.1.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
