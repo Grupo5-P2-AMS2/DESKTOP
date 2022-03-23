@@ -23,7 +23,7 @@ public class Course {
 	private final StringProperty title;
 	private final StringProperty description;
 	private final StringProperty oid;
-	private final Map<String, ArrayList<Long>> suscribers;
+	private final Map<String, ArrayList<Integer>> suscribers;
 	private final ArrayList<ObjectProperty<Object>> elements;
 	private final ArrayList<ObjectProperty<Object>> tasks;
 	private final ArrayList<ObjectProperty<Object>> vrTasks;
@@ -78,30 +78,20 @@ public class Course {
 			JSONObject suscriberObject;
 			try {
 				suscriberObject = (JSONObject) jsonParser.parse(suscriberString);
-				ArrayList<Long> teacherIdList = new ArrayList<Long>();
-				ArrayList<Long> studentIdList = new ArrayList<Long>();
+				System.out.println("PrintCourse");
+				System.out.println((ArrayList<Integer>) suscriberObject.get("teachers"));
+				System.out.println((ArrayList<Integer>) suscriberObject.get("students"));
 				
-				//JSONArray to iterate
-				JSONArray teacherArray = (JSONArray) suscriberObject.get("teachers");
-				Iterator<Long> iterator = teacherArray.iterator();
+				ArrayList<Integer> teacherIdList = (ArrayList<Integer>) suscriberObject.get("teachers");
+				ArrayList<Integer> studentIdList = (ArrayList<Integer>) suscriberObject.get("students");
 				
-				//Adding IDs to list
-				while(iterator.hasNext()) {
-					 teacherIdList.add(iterator.next());
-				}
-
-				//JSONArray to iterate
-				JSONArray studentArray = (JSONArray) suscriberObject.get("students");
-				iterator = studentArray.iterator();
-				
-				//Adding IDs to list
-				while(iterator.hasNext()) {
-					studentIdList.add(iterator.next());
-				}
+				System.out.println(teacherIdList);
+				System.out.println(studentIdList);
+				System.out.println("END");
 				
 				this.suscribers.put("teachers", teacherIdList);
 				this.suscribers.put("students", studentIdList);
-			
+				
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -151,14 +141,12 @@ public class Course {
 		return oid;
 	}
 	
-	public ArrayList<Long> getTeachers() {
+	public ArrayList<Integer> getTeachers() {
 		return suscribers.get("teachers");
 	}
 	
-	public ArrayList<Long> getStudents() {
+	public ArrayList<Integer> getStudents() {
 		return suscribers.get("students");
 	}
-	
-	
 
 }

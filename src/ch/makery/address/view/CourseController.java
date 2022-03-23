@@ -13,8 +13,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 
 import ch.makery.address.MainApp;
 import ch.makery.address.model.Course;
@@ -55,6 +58,11 @@ public class CourseController {
     	Map<String,Object> upload1;
     	Map<String,Object> upload2;
     	ArrayList<Map<String, Object>> vrTasks = new ArrayList<Map<String, Object>>();
+    	
+    	//Lists for users
+    	ArrayList<Integer> teacherIdList = new ArrayList<Integer>();
+        ArrayList<Integer> studentIdList = new ArrayList<Integer>();
+        ArrayList<Integer> userIdList = new ArrayList<Integer>();
     	
 	    // Reference to the main application.
 	    private MainApp mainApp;
@@ -119,35 +127,48 @@ public class CourseController {
 	            
 	            //Clear user lists
 	            userList.getItems().clear();
-	            teacherList.getItems().clear();
-	            studentList.getItems().clear();
+            	teacherList.getItems().clear();
+            	studentList.getItems().clear();
 	            
 	            //Get users suscribed to the course
-	            ArrayList<Long> teacherIDs = course.getTeachers();
-	            ArrayList<Long> studentIDs = course.getStudents();
+	            ArrayList<Integer> teacherIDs = course.getTeachers();
+	            ArrayList<Integer> studentIDs = course.getStudents();
+	            System.out.println("PrintController");
+	            System.out.println(teacherIDs);
+	            System.out.println(studentIDs);
 	            
 	            //JSONParser to get info from strings
 	            JSONParser jsonParser = new JSONParser();
 	            String userString;
 	            JSONObject userObject;
-	            
+
 	            
 	            try {
 	                while(cursor.hasNext()) {          
 	                	userString = cursor.next().toJson();
 	                	try {
 							userObject = (JSONObject) jsonParser.parse(userString);
-							
-							//Check which list to add the user
+							System.out.println(userObject.get("ID"));
+							//Check which list to add the user to
 							if (teacherIDs.contains(userObject.get("ID"))) {
+								//Add teacher name to interface list
 								teacherList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
+										" "/*+(userObject.get("last_name").toString())*/);
+								//Add Id to IdList
+								teacherIdList.add(((Long)userObject.get("ID")).intValue());
 							} else if (studentIDs.contains(userObject.get("ID"))) {
+								//Add student name to interface list
 								studentList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
+										" "/*+(userObject.get("last_name").toString())*/);
+								//Add Id to IdList
+
+								studentIdList.add(((Long)userObject.get("ID")).intValue());
 							} else {
+								//Add unsuscribed user name to interface list
 								userList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
+										" "/*+(userObject.get("last_name").toString())*/);
+								//Add Id to IdList
+								userIdList.add(((Long)userObject.get("ID")).intValue());
 							}
 							
 						} catch (ParseException e) {
@@ -192,63 +213,155 @@ public class CourseController {
 	     * Called when the user clicks on the delete button.
 	     */
 
-   
-    @FXML
-    private void handleDeleteCourse() {
-        boolean okClicked = mainApp.showConfirmDeletion();
-        if (okClicked) {
-	        int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
-	        //delete from mongo db based on oid from element
-	        if (selectedIndex >= 0) {
-	        	String oid = courseTable.getItems().get(selectedIndex).getOid();
-	        	Bson query = eq("_id", oid);
-	        	mainApp.getCourseCollection().deleteOne(query);
-	        	courseTable.getItems().remove(selectedIndex);
-	        } else {
-	            // Nothing selected.
-	            Dialogs.create()
-	                .title("No Selection")
-	                .masthead("No Course Selected")
-	                .message("Please select a course in the table.")
-	                .showWarning();
+	    @FXML
+	    private void handleDeleteCourse() {
+	        boolean okClicked = mainApp.showConfirmDeletion();
+	        if (okClicked) {
+		        int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
+		        //delete from mongo db based on oid from element
+		        if (selectedIndex >= 0) {
+		        	String oid = courseTable.getItems().get(selectedIndex).getOid();
+		        	Bson query = eq("_id", oid);
+		        	mainApp.getCourseCollection().deleteOne(query);
+		        	courseTable.getItems().remove(selectedIndex);
+		        } else {
+		            // Nothing selected.
+		            Dialogs.create()
+		                .title("No Selection")
+		                .masthead("No Course Selected")
+		                .message("Please select a course in the table.")
+		                .showWarning();
+		        }
 	        }
-        }
-    }
+	    }
     
     //User handling button functions
     @FXML
     private void addTeacher() {
-    	
+    	int selectedUserIndex = userList.getSelectionModel().getSelectedIndex();
+        int selectedCourseIndex = courseTable.getSelectionModel().getSelectedIndex();
+        Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
+        if (selectedUserIndex >= 0) {
+        	//Get course
+        	String oid = courseTable.getItems().get(selectedCourseIndex).getOid();
+        	
+        	Map<String, ArrayList<Integer>> suscriberMap = new HashMap<>();
+        	//Add user Id from list as teacher
+        	teacherIdList.add(userIdList.get(selectedUserIndex));
+        	suscriberMap.put("teachers", teacherIdList);
+        	suscriberMap.put("students", studentIdList);
+        	
+        	Bson filter = eq("_id", oid);
+        	Bson query = Updates.set("suscribers", suscriberMap);    	
+        	
+        	UpdateResult result = mainApp.getCourseCollection().updateOne(filter, query);
+        	System.out.println(result);
+        	
+        	showCourseDetails(selectedCourse);
+        } else {
+            // Nothing selected.
+            Dialogs.create()
+                .title("No Selection")
+                .masthead("No Course Selected")
+                .message("Please select a course in the table.")
+                .showWarning();
+        }
     }
+    
     @FXML
     private void removeTeacher() {
-    	boolean okClicked = mainApp.showConfirmDeletion();
-        if (okClicked) {
-	        int selectedIndex = teacherList.getSelectionModel().getSelectedIndex();
-	        //delete from mongo db based on oid from element
-	        if (selectedIndex >= 0) {
-	        	String oid = teacherList.getItems().get(selectedIndex);
-	        	Bson query = eq("_id", oid);
-	        	mainApp.getCourseCollection().deleteOne(query);
-	        	courseTable.getItems().remove(selectedIndex);
-	        } else {
-	            // Nothing selected.
-	            Dialogs.create()
-	                .title("No Selection")
-	                .masthead("No Course Selected")
-	                .message("Please select a course in the table.")
-	                .showWarning();
-	        }
+    	int selectedTeacherIndex = teacherList.getSelectionModel().getSelectedIndex();
+        int selectedCourseIndex = courseTable.getSelectionModel().getSelectedIndex();
+        Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
+        if (selectedTeacherIndex >= 0) {
+        	//Get course
+        	String oid = courseTable.getItems().get(selectedCourseIndex).getOid();
+        	
+        	Map<String, ArrayList<Integer>> suscriberMap = new HashMap<>();
+        	//Delete teacher Id from list
+        	teacherIdList.remove(studentIdList.get(selectedTeacherIndex));
+        	suscriberMap.put("teachers", teacherIdList);
+        	suscriberMap.put("students", studentIdList);
+        	
+        	Bson filter = eq("_id", oid);
+        	Bson query = Updates.set("suscribers", suscriberMap);    	
+        	
+        	UpdateResult result = mainApp.getCourseCollection().updateOne(filter, query);
+        	System.out.println(result);
+        	
+        	showCourseDetails(selectedCourse);
+        } else {
+            // Nothing selected.
+            Dialogs.create()
+                .title("No Selection")
+                .masthead("No Course Selected")
+                .message("Please select a course in the table.")
+                .showWarning();
         }
     }
     
     @FXML
     private void addStudent() {
-    	
+    	int selectedUserIndex = userList.getSelectionModel().getSelectedIndex();
+        int selectedCourseIndex = courseTable.getSelectionModel().getSelectedIndex();
+        Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
+        
+        if (selectedUserIndex >= 0) {
+        	//Get course
+        	String oid = courseTable.getItems().get(selectedCourseIndex).getOid();
+        	
+        	Map<String, ArrayList<Integer>> suscriberMap = new HashMap<>();
+        	//Add user Id from list as student
+        	studentIdList.add(userIdList.get(selectedUserIndex));
+        	suscriberMap.put("teachers", teacherIdList);
+        	suscriberMap.put("students", studentIdList);
+        	
+        	Bson filter = eq("_id", oid);
+        	Bson query = Updates.set("suscribers", suscriberMap);    	
+        	
+        	UpdateResult result = mainApp.getCourseCollection().updateOne(filter, query);
+        	System.out.println(result);
+        	
+        	showCourseDetails(selectedCourse);
+        } else {
+            // Nothing selected.
+            Dialogs.create()
+                .title("No Selection")
+                .masthead("No Course Selected")
+                .message("Please select a course in the table.")
+                .showWarning();
+        }
     }
+    
     @FXML
     private void removeStudent() {
-    	
+        int selectedStudentIndex = studentList.getSelectionModel().getSelectedIndex();
+        int selectedCourseIndex = courseTable.getSelectionModel().getSelectedIndex();
+        Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
+        if (selectedStudentIndex >= 0) {
+        	//Get course
+        	String oid = courseTable.getItems().get(selectedCourseIndex).getOid();
+        	
+        	Map<String, ArrayList<Integer>> suscriberMap = new HashMap<>();
+        	//Delete student Id from list
+        	studentIdList.remove(studentIdList.get(selectedStudentIndex));
+        	suscriberMap.put("teachers", teacherIdList);
+        	suscriberMap.put("students", studentIdList);
+        	
+        	Bson filter = eq("_id", oid);
+        	Bson query = Updates.set("suscribers", suscriberMap);    	
+        	
+        	UpdateResult result = mainApp.getCourseCollection().updateOne(filter, query);
+        	
+        	showCourseDetails(selectedCourse);
+        } else {
+            // Nothing selected.
+            Dialogs.create()
+                .title("No Selection")
+                .masthead("No Course Selected")
+                .message("Please select a course in the table.")
+                .showWarning();
+        }
     }
     
     //Template initialization

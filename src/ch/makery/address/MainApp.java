@@ -49,7 +49,6 @@ public class MainApp extends Application {
 		try (MongoCursor<Document> cur = courseCollection.find().iterator()) {
 
             while (cur.hasNext()) {
-           	System.out.println("next");
            	var next = cur.next();
             	Object title = next.get("title");
             	Object description = next.get("description");

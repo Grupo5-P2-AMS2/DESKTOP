@@ -48,17 +48,17 @@
                   <Label layoutX="24.0" layoutY="32.0" styleClass="label-header" text="Title:" />
                   <Label layoutX="24.0" layoutY="60.0" styleClass="label-header" text="Description:" />
                   <Label layoutX="23.0" layoutY="163.0" styleClass="label-header" text="Users" />
-                  <Label layoutX="337.0" layoutY="155.0" styleClass="label-header" text="Professors" />
+                  <Label layoutX="337.0" layoutY="155.0" styleClass="label-header" text="Teachers" />
                   <Label layoutX="341.0" layoutY="287.0" styleClass="label-header" text="Students" />
                   <TextField fx:id="titleField" layoutX="106.0" layoutY="28.0" prefHeight="25.0" prefWidth="309.0" />
                   <TextArea fx:id="descriptionArea" layoutX="109.0" layoutY="60.0" prefHeight="55.0" prefWidth="309.0" />
                   <ListView fx:id="userList" layoutX="14.0" layoutY="187.0" prefHeight="216.0" prefWidth="183.0" />
-                  <ListView fx:id="professorList" layoutX="273.0" layoutY="179.0" prefHeight="106.0" prefWidth="183.0" />
+                  <ListView fx:id="teacherList" layoutX="273.0" layoutY="179.0" prefHeight="106.0" prefWidth="183.0" />
                   <ListView fx:id="studentList" layoutX="273.0" layoutY="304.0" prefHeight="114.0" prefWidth="183.0" />
-                  <Button layoutX="205.0" layoutY="193.0" mnemonicParsing="false" text="==&gt;" />
-                  <Button layoutX="205.0" layoutY="232.0" mnemonicParsing="false" text="&lt;==" />
-                  <Button layoutX="205.0" layoutY="329.0" mnemonicParsing="false" text="==&gt;" />
-                  <Button layoutX="205.0" layoutY="368.0" mnemonicParsing="false" text="&lt;==" />
+                  <Button layoutX="205.0" layoutY="193.0" mnemonicParsing="false" onAction="#addTeacher" text="==&gt;" />
+                  <Button layoutX="205.0" layoutY="232.0" mnemonicParsing="false" onAction="#removeTeacher" text="&lt;==" />
+                  <Button layoutX="205.0" layoutY="329.0" mnemonicParsing="false" onAction="#addStudent" text="==&gt;" />
+                  <Button layoutX="205.0" layoutY="368.0" mnemonicParsing="false" onAction="#removeStudent" text="&lt;==" />
                </children>
             </AnchorPane>
         </items>
