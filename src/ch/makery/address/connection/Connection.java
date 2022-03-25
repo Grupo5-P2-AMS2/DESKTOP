@@ -11,13 +11,23 @@ public class Connection {
 
 	
 	
-	public MongoCollection<Document> connect() {
+	public MongoCollection<Document> getCourses() {
 		MongoClient client = MongoClients.create(Configuration.getConfiguration().getDBURL());
 		
 		MongoDatabase database = client.getDatabase("ClassVRroomDB");
-		MongoCollection<Document> testCollection = database.getCollection("Courses");
+		MongoCollection<Document> courseCollection = database.getCollection("Courses");
 		System.out.println("Collection access granted");
 		
-		return testCollection;
+		return courseCollection;
+	}
+	
+	public MongoCollection<Document> getUsers() {
+		MongoClient client = MongoClients.create(Configuration.getConfiguration().getDBURL());
+		
+		MongoDatabase database = client.getDatabase("ClassVRroomDB");
+		MongoCollection<Document> userCollection = database.getCollection("Users");
+		System.out.println("Collection access granted");
+		
+		return userCollection;
 	}
 }

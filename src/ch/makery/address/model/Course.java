@@ -1,7 +1,20 @@
 package ch.makery.address.model;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.bson.Document;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -10,10 +23,10 @@ public class Course {
 	private final StringProperty title;
 	private final StringProperty description;
 	private final StringProperty oid;
-	private final ObjectProperty<Object>[] suscribers;
-	private final ObjectProperty<Object>[] elements;
-	private final ObjectProperty<Object>[] tasks;
-	private final ObjectProperty<Object>[] vrTasks;
+	private final Map<String, ArrayList<Long>> suscribers;
+	private final ArrayList<ObjectProperty<Object>> elements;
+	private final ArrayList<ObjectProperty<Object>> tasks;
+	private final ArrayList<ObjectProperty<Object>> vrTasks;
 	
 	/**
 	 * Default constructor.
@@ -41,18 +54,66 @@ public class Course {
 		
 	}
 	
-	public Course(StringProperty title, StringProperty description, StringProperty oid,
-			ObjectProperty<Object>[] suscribers, ObjectProperty<Object>[] elements, ObjectProperty<Object>[] tasks,
-			ObjectProperty<Object>[] vrTasks) {
+	public Course(String title, String description, String oid,
+			JSONObject suscribers, JSONObject elements, JSONObject tasks,
+			JSONObject vrTasks) {
 		super();
-		this.title = title;
-		this.description = description;
-		this.oid = oid;
-		this.suscribers = suscribers;
-		this.elements = elements;
-		this.tasks = tasks;
-		this.vrTasks = vrTasks;
+		//Adding simple strings to the Course object
+		this.title = new SimpleStringProperty(title);
+		this.description = new SimpleStringProperty(description);
+		this.oid = new SimpleStringProperty(oid);
+		
+		//JSONParser to parse strings and extract information
+		JSONParser jsonParser = new JSONParser();
+		
+		//Checking suscribers exists
+		if(suscribers.get("suscribers") != null) {
+			//this.suscribers = null;
+			//Instantiating the suscribers property of the course
+			this.suscribers = new HashMap<>();
+			//Getting the string of suscribers
+			String suscriberString = ((Document) suscribers.get("suscribers")).toJson();
+			
+			//Parsing suscribers to extract id list of teachers and students suscribed
+			JSONObject suscriberObject;
+			try {
+				suscriberObject = (JSONObject) jsonParser.parse(suscriberString);
+				ArrayList<Long> teacherIdList = new ArrayList<Long>();
+				ArrayList<Long> studentIdList = new ArrayList<Long>();
+				
+				//JSONArray to iterate
+				JSONArray teacherArray = (JSONArray) suscriberObject.get("teachers");
+				Iterator<Long> iterator = teacherArray.iterator();
+				
+				//Adding IDs to list
+				while(iterator.hasNext()) {
+					 teacherIdList.add(iterator.next());
+				}
+
+				//JSONArray to iterate
+				JSONArray studentArray = (JSONArray) suscriberObject.get("students");
+				iterator = studentArray.iterator();
+				
+				//Adding IDs to list
+				while(iterator.hasNext()) {
+					studentIdList.add(iterator.next());
+				}
+				
+				this.suscribers.put("teachers", teacherIdList);
+				this.suscribers.put("students", studentIdList);
+			
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		} else {
+			this.suscribers = null;
+		}
+		
+		this.elements = null;
+		this.tasks = null;
+		this.vrTasks = null;
 	}
+	
 
 	public String getTitle() {
 		return title.get();
@@ -76,8 +137,7 @@ public class Course {
 	
 	public StringProperty descriptionProperty() {
 		return description;	
-	}
-	
+	}	
 
 	public String getOid() {
 		return oid.get();
@@ -90,5 +150,15 @@ public class Course {
 	public StringProperty oidProperty() {
 		return oid;
 	}
+	
+	public ArrayList<Long> getTeachers() {
+		return suscribers.get("teachers");
+	}
+	
+	public ArrayList<Long> getStudents() {
+		return suscribers.get("students");
+	}
+	
+	
 
 }
