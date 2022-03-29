@@ -1,117 +1,82 @@
 package ch.makery.address.view;
 
-import org.bson.types.ObjectId;
-import org.controlsfx.dialog.Dialogs;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import ch.makery.address.model.Course;
+import ch.makery.address.connection.Connection;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-/**
- * Dialog to edit details of a person.
- * 
- * @author Marco Jakob
- */
+
 public class NewCourseDialogController {
 
     @FXML
     private TextField titleField;
     @FXML
     private TextField descriptionField;
+  
 
     private Stage dialogStage;
-    private Course course;
     private boolean okClicked = false;
 
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
+
     @FXML
     private void initialize() {
     }
 
-    /**
-     * Sets the stage of this dialog.
-     * 
-     * @param dialogStage
-     */
+    
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
-    /**
-     * Sets the person to be edited in the dialog.
-     * 
-     * @param person
-     */
-    public void setCourse(Course course) {
-        this.course = course;
-
-        titleField.setText(course.getTitle());
-        descriptionField.setText(course.getDescription());
-        course.setOid(new ObjectId().toString());
-        
-    }
-
-    /**
-     * Returns true if the user clicked OK, false otherwise.
-     * 
-     * @return
-     */
     public boolean isOkClicked() {
         return okClicked;
     }
 
-    /**
-     * Called when the user clicks ok.
-     */
     @FXML
-    private void handleOk() {
+    private void handleOk() throws FileNotFoundException, IOException {
         if (isInputValid()) {
-            course.setTitle(titleField.getText());
-            course.setDescription(descriptionField.getText());
-
+        	Connection.newCourse(titleField.getText(), descriptionField.getText());
             okClicked = true;
             dialogStage.close();
         }
     }
 
-    /**
-     * Called when the user clicks cancel.
-     */
+ 
     @FXML
     private void handleCancel() {
         dialogStage.close();
     }
 
-    /**
-     * Validates the user input in the text fields.
-     * 
-     * @return true if the input is valid
-     */
-    private boolean isInputValid() {
-        String errorMessage = "";
 
-        if (titleField.getText() == null || titleField.getText().length() == 0) {
-            errorMessage += "No valid title!\n"; 
-        }
-        if (descriptionField.getText() == null || descriptionField.getText().length() == 0) {
-            errorMessage += "No valid description!\n"; 
-        }
-        
+    //Check if any of the strings entered is empty
+	private boolean isInputValid() {
+		String errorMessage = "";
 
-        if (errorMessage.length() == 0) {
-            return true;
-        } else {
-            // Show the error message.
-        	Dialogs.create()
-		        .title("Invalid Fields")
-		        .masthead("Please correct invalid fields")
-		        .message(errorMessage)
-		        .showError();
-            return false;
-        }
-    }
+		if (titleField.getText() == null || titleField.getText().replaceAll(" ", "").length() == 0) {
+			errorMessage += "No valid title!";
+		}	
+		if (descriptionField.getText() == null || descriptionField.getText().replaceAll(" ", "").length() == 0) {
+			errorMessage += "No valid description!";
+		}
+		
+
+		if (errorMessage.length() == 0) {
+			return true;
+		} else {
+			// Show the error message.
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.initOwner(dialogStage);
+			alert.setTitle("Invalid Fields");
+			alert.setHeaderText("Please correct invalid fields");
+			alert.setContentText(errorMessage);
+
+			alert.showAndWait();
+
+			return false;
+		}
+	}
 }
