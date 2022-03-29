@@ -1,335 +1,232 @@
 package ch.makery.address.view;
 
-import static com.mongodb.client.model.Filters.eq;
-
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.controlsfx.dialog.Dialogs;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCursor;
+import org.bson.types.ObjectId;
 
 import ch.makery.address.MainApp;
-import ch.makery.address.model.Course;
+import ch.makery.address.connection.Connection;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+
 public class CourseController {
 
-		@FXML
-	    private TableView<Course> courseTable;
-	    @FXML
-	    private TableColumn<Course, String> titleColumn;
-	    @FXML
-	    private TableColumn<Course, String> descriptionColumn;
 
-	    @FXML
-	    private TextField titleField = new TextField();
-	    @FXML
-	    private TextArea descriptionArea = new TextArea();
-	    @FXML
-	    private ListView<String> userList;
-	    @FXML
-	    private ListView<String> teacherList;
-	    @FXML
-	    private ListView<String> studentList;
-	    
-	    //attributes for new courses
-	    Map<String, ArrayList<Integer>> suscribers = new HashMap<>();
-    	ArrayList<Integer> teachers = new ArrayList<Integer>();
-    	ArrayList<Integer> students = new ArrayList<Integer>();
-    	ArrayList<Map<String, Object>> elements = new ArrayList<Map<String, Object>>();
-    	Map<String, Object> element;
-    	ArrayList<Map<String, Object>> tasks = new ArrayList<Map<String, Object>>();
-    	Map<String,Object> upload1;
-    	Map<String,Object> upload2;
-    	ArrayList<Map<String, Object>> vrTasks = new ArrayList<Map<String, Object>>();
-    	
-	    // Reference to the main application.
-	    private MainApp mainApp;
-
-	    /**
-	     * The constructor.
-	     * The constructor is called before the initialize() method.
-	     */
-	    public CourseController() {
-	    }
-
-	    /**
-	     * Initializes the controller class. This method is automatically called
-	     * after the fxml file has been loaded.
-	     */
-	    @FXML
-	    private void initialize() {
-	    	//Initialize data for template new course
-	    	initializeTemplate();
-	    	
-	    	// Initialize the person table with the two columns.
-	        titleColumn.setCellValueFactory(
-	                cellData -> cellData.getValue().titleProperty());
-	        descriptionColumn.setCellValueFactory(
-	                cellData -> cellData.getValue().descriptionProperty());
-
-	        
-	        
-	        // Clear person details.
-	        showCourseDetails(null);
-
-	        // Listen for selection changes and show the person details when changed.
-	        courseTable.getSelectionModel().selectedItemProperty().addListener(
-	                (observable, oldValue, newValue) -> showCourseDetails(newValue));
-	    }
-
-	    /**
-	     * Is called by the main application to give a reference back to itself.
-	     * 
-	     * @param mainApp
-	     */
-	    public void setMainApp(MainApp mainApp) {
-	        this.mainApp = mainApp;
-
-	        // Add observable list data to the table
-	        courseTable.setItems(mainApp.getCourseData());
-	    }
-	    
-	    /**
-	     * Fills all text fields to show details about the course.
-	     * If the specified course is null, all text fields are cleared.*/
-
-	    private void showCourseDetails(Course course) {
-	        if (course != null) {
-	            // Fill the labels with info from the course object.
-	            titleField.setText(course.getTitle());
-	            descriptionArea.setText(course.getDescription());
-	            
-	         // Performing a read operation on the collection.
-	            FindIterable<Document> fi = this.mainApp.getUserCollection().find();
-	            MongoCursor<Document> cursor = fi.iterator();
-	            
-	            //Clear user lists
-	            userList.getItems().clear();
-	            teacherList.getItems().clear();
-	            studentList.getItems().clear();
-	            
-	            //Get users suscribed to the course
-	            ArrayList<Long> teacherIDs = course.getTeachers();
-	            ArrayList<Long> studentIDs = course.getStudents();
-	            
-	            //JSONParser to get info from strings
-	            JSONParser jsonParser = new JSONParser();
-	            String userString;
-	            JSONObject userObject;
-	            
-	            
-	            try {
-	                while(cursor.hasNext()) {          
-	                	userString = cursor.next().toJson();
-	                	try {
-							userObject = (JSONObject) jsonParser.parse(userString);
-							
-							//Check which list to add the user
-							if (teacherIDs.contains(userObject.get("ID"))) {
-								teacherList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
-							} else if (studentIDs.contains(userObject.get("ID"))) {
-								studentList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
-							} else {
-								userList.getItems().add((userObject.get("first_name").toString())+
-										" "+(userObject.get("last_name").toString()));
-							}
-							
-						} catch (ParseException e) {
-							e.printStackTrace();
-						} 	
-	                }
-	            } finally {
-	                cursor.close();
-	            }
-
-	        } else {
-	            // Course is null, remove all the text.
-	        	titleField.setText("");
-	        	descriptionArea.setText("");
-	        }
-	    }
-	    
-	    /**
-	     * Called when the user clicks the new button. Opens a dialog to edit
-	     * details for a new course.
-	     */
-	    @FXML
-	    private void handleNewCourse() {
-	    	Course tempCourse = new Course();
-	        boolean okClicked = mainApp.showNewCourseDialog(tempCourse);
-	        if (okClicked) {
-	        	
-	            mainApp.getCourseData().add(tempCourse);
-	            mainApp.getCourseCollection().insertOne(new Document()
-	                    .append("_id", tempCourse.getOid())
-	                    .append("title", tempCourse.getTitle())
-	                    .append("description", tempCourse.getDescription())
-	            		.append("suscribers", suscribers)
-	            		.append("elements", elements)
-	            		.append("tasks", tasks)
-	            		.append("VRtasks", vrTasks));
-	        }
-	    }
-	  
-	    
-	    /**
-	     * Called when the user clicks on the delete button.
-	     */
-
-   
+	@FXML
+	private GridPane courses;
     @FXML
-    private void handleDeleteCourse() {
-        boolean okClicked = mainApp.showConfirmDeletion();
-        if (okClicked) {
-	        int selectedIndex = courseTable.getSelectionModel().getSelectedIndex();
-	        //delete from mongo db based on oid from element
-	        if (selectedIndex >= 0) {
-	        	String oid = courseTable.getItems().get(selectedIndex).getOid();
-	        	Bson query = eq("_id", oid);
-	        	mainApp.getCourseCollection().deleteOne(query);
-	        	courseTable.getItems().remove(selectedIndex);
-	        } else {
-	            // Nothing selected.
-	            Dialogs.create()
-	                .title("No Selection")
-	                .masthead("No Course Selected")
-	                .message("Please select a course in the table.")
-	                .showWarning();
-	        }
-        }
-    }
-    
-    //User handling button functions
-    @FXML
-    private void addTeacher() {
-    	
-    }
-    @FXML
-    private void removeTeacher() {
-    	boolean okClicked = mainApp.showConfirmDeletion();
-        if (okClicked) {
-	        int selectedIndex = teacherList.getSelectionModel().getSelectedIndex();
-	        //delete from mongo db based on oid from element
-	        if (selectedIndex >= 0) {
-	        	String oid = teacherList.getItems().get(selectedIndex);
-	        	Bson query = eq("_id", oid);
-	        	mainApp.getCourseCollection().deleteOne(query);
-	        	courseTable.getItems().remove(selectedIndex);
-	        } else {
-	            // Nothing selected.
-	            Dialogs.create()
-	                .title("No Selection")
-	                .masthead("No Course Selected")
-	                .message("Please select a course in the table.")
-	                .showWarning();
-	        }
-        }
-    }
-    
-    @FXML
-    private void addStudent() {
-    	
-    }
-    @FXML
-    private void removeStudent() {
-    	
-    }
-    
-    //Template initialization
-    
-    private void initializeTemplate() {
-
-    	//Suscribers
-    	teachers.add(101);
-    	teachers.add(102);
-    	suscribers.put("teachers", teachers);
-    	students.add(1);
-    	students.add(2);
-    	students.add(3);
-    	students.add(4);
-    	suscribers.put( "students", students);
-    	
-    	//Elements
-    	fillElementOrTask(elements, 1, "HTML", "Traslado de pacientes", "Información sobre el traslado de pacientes", 
-    			1, "contents", "<h1>Apuntes de traslado de pacientes</h1><p>El traslado ...</p>");
-    	fillElementOrTask(elements, 2, "file", "Primeros auxilios", "Información sobre primeros auxilios",
-    			2, "file", "file:///media/apuntes.pdf");
-    	
-    	//Tasks
-    	upload1 = new HashMap<>();
-    	upload2 = new HashMap<>();
-    	fillUpload(upload1, 11, "no está acabado pero lo subo ya", "file:///media/Ejercicio1-nacho.pdf", 
-    			8, "Buen trabajo");
-    	fillUpload(upload2, 12, "Entrega del ejercicio 1", "Ejercicio1-pepe.pdf", 
-    			6, "Buen trabajo");
-    	
-    	ArrayList<Map<String, Object>> uploads = new ArrayList<Map<String, Object>>();
-    	uploads.add(upload1);
-    	uploads.add(upload2);
-    	
-    	fillElementOrTask(tasks, 13, "file", "Cambio a postura lateral", "Inmovilización de pacientes en cama",
-    			1, "uploads", uploads);
-    	
-    	upload1 = new HashMap<>();
-    	upload2 = new HashMap<>();
-    	fillUpload(upload1, 13, "loren ipsum dolo sit amet...", null, 
-    			5, "Hay que mejorar");
-    	fillUpload(upload2, 12, "lorem ipsum chiquito de la calzada...", null, 
-    			3, "Hay que mejorar");
-    	
-    	uploads = new ArrayList<Map<String, Object>>();
-    	uploads.add(upload1);
-    	uploads.add(upload2);
-    	
-    	fillElementOrTask(tasks, 14, "HTML", "Cambio a postura frontal", "Inmovilización de pacientes en cama de manera frontal",
-    			2, "uploads", uploads);
-    	//VRTasks
-    	
-    	
-    }
- 
-    //Template Course Complimentary Functions
-    
-    private void fillElementOrTask(ArrayList<Map<String, Object>> map, int id, String type, String title, String description, int order, 
-    		String lastKey, Object lastValue) {
-    	element = new HashMap<>();
-    	element.put("ID", id);
-    	element.put("type", type);
-    	element.put("title", title);
-    	element.put("description", description);
-    	element.put(lastKey, lastValue);
-    	map.add(element);
-    }
-    
-    private void fillUpload(Map<String, Object> upload, int studentID, String text, String file, int grade, String feedback) {
-    	upload.put("studentID", studentID);
-    	upload.put("text", text);
-    	if (file != null) {
-    		upload.put("file", file);	
+	private TextField titleField;
+	@FXML
+	private TextArea descriptionArea;
+	@FXML
+	private ListView<Document> userList;
+	@FXML
+	private ListView<Document> teacherList;
+	@FXML
+	private ListView<Document> studentList;
+	
+	private String courseId;
+	private MainApp mainApp;
+	
+    	public CourseController() {
+    		
     	}
-    	upload.put("grade", grade);
-    	upload.put("feedback", feedback);
-    };
-    
-    private void fillVRTaks() {
     	
-    }
+    	@FXML
+    	private void initialize() throws FileNotFoundException {
+    		showCourses();
+    	}
+    	
+    	public void setMainApp(MainApp mainApp) {
+    		this.mainApp = mainApp;
+    	}
+    	
+    	public void showCourses() throws FileNotFoundException{
+    		//Get courses from connection class
+    		ArrayList<Document> courseList = Connection.getAll("Courses");
+    		for (int i = 0; i < courseList.size(); i++) {
+    			//Set course values
+	    		String descriptionText = courseList.get(i).getString("description");
+				String titleText = courseList.get(i).getString("title");
+				ObjectId id = courseList.get(i).getObjectId("_id");
+				
+				//Set course as a button with a delete button
+				Button courseTitleButton = new Button(titleText);
+				Button deleteButton = new Button("Delete");
+							
+				//Set size for the course button
+				courseTitleButton.setMaxWidth(Double.MAX_VALUE);
+				courseTitleButton.setMaxHeight(Double.MAX_VALUE);
+				courseTitleButton.setAlignment(Pos.BASELINE_LEFT);
+	
+				//Set size for delete button
+				deleteButton.setId(id.toString());
+				deleteButton.setMaxWidth(Double.MAX_VALUE);
+				deleteButton.setMaxHeight(Double.MAX_VALUE);	
+	
+				//Add buttons to the courses GridPane
+				courses.add(courseTitleButton, 0, i);
+				courses.add(deleteButton, 1, i);
+				courses.setAlignment(Pos.CENTER);
+				
+				//Set actions to show course details if the course button is clicked
+				courseTitleButton.setOnMouseClicked(e ->{
+					titleField.setText(titleText);
+					descriptionArea.setText(descriptionText);
+					showUsers(id);
+					courseId = id.toString();
+				});
+				
+				//Set course deletion method for the delete button
+				deleteButton.setOnMouseClicked(e -> {			
+					boolean answer = handleDeleteCourse();
+					if(answer == true) {
+						Connection.delete("Courses", id.toString());
+						mainApp.showCourseViewer();
+					}
+				});
+    		}
+    		
+    	}
+    	
+    	public void showUsers(ObjectId courseId) {
+    		//Set teacher list
+    		ArrayList<Integer> teacherIdArray = Connection.getTeachers(courseId.toString());
+    		ArrayList<Document> teacherArray = Connection.getUserList(teacherIdArray);
+    		System.out.println(teacherArray);
+    		teacherList.getItems().clear();
+    		teacherList.getItems().addAll(teacherArray);
+    		teacherList.setCellFactory(lv -> new ListCell<Document>(){
+    			@Override
+    			public void updateItem(Document user, boolean empty) {
+    				super.updateItem(user, empty);
+
+    				if (user != null){
+    					setText(user.getString("first_name"));
+    					setId(user.getObjectId("_id").toString());
+    				}
+    			}
+    		});
+    		
+    		//Set student list
+    		ArrayList<Integer> studentIdArray = Connection.getStudents(courseId.toString());
+    		ArrayList<Document>studentArray = Connection.getUserList(studentIdArray);
+    		System.out.println(studentArray);
+    		studentList.getItems().clear();
+    		studentList.getItems().addAll(studentArray);
+    		studentList.setCellFactory(lv -> new ListCell<Document>(){
+    			@Override
+    			public void updateItem(Document user, boolean empty) {
+    				super.updateItem(user, empty);
+
+    				if (user != null){
+    					setText(user.getString("first_name"));
+    					setId(user.getObjectId("_id").toString());
+    				}
+    			}
+    		});
+    		
+    		//Set unsuscribed user list
+    		ArrayList<Integer> suscriberIds = new ArrayList<Integer>();
+    		suscriberIds.addAll(teacherIdArray);
+    		suscriberIds.addAll(studentIdArray);
+    		ArrayList<Document> userArray = Connection.getUsers(suscriberIds);
+    		System.out.println(userArray);
+    		userList.getItems().clear();
+    		userList.getItems().addAll(userArray);
+    		userList.setCellFactory(lv -> new ListCell<Document>(){
+    			@Override
+    			public void updateItem(Document user, boolean empty) {
+    				super.updateItem(user, empty);
+
+    				if (user != null){
+    					setText(user.getString("first_name"));
+    					setId(user.getObjectId("_id").toString());
+    				}
+    			}
+    		});
+    	}
+
+		//Confirmation for deletion of course
+    	@FXML
+    	private boolean handleDeleteCourse() {    
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Are you sure you want to delete this course?");
+            ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText("Yes");
+            ((Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL)).setText("No");
+
+            Optional<ButtonType> result = alert.showAndWait();
+    		 if (result.isPresent() && result.get() == ButtonType.OK) {
+    		     return true;
+    		 }
+    		 return false;    
+    	}
+    	
+    	//Calls new dialog for course creation
+    	@FXML
+    	private void handleNewCourse() {
+    	    boolean okClicked = mainApp.showNewCourseDialog();
+    	    //Show courses if 'ok' was clicked
+    	    if (okClicked) {
+    	        mainApp.showCourseViewer();
+    	    }
+    	}
     
+    	//Subscribe or unsuscribe users to a course
     
+    	@FXML
+    	private void addStudent() {
+    		System.out.println("add student");
+    		if(userList.getSelectionModel().getSelectedIndex() != -1) {
+    	        Connection.addUserToCourse("students",courseId, 
+    	        		userList.getSelectionModel().getSelectedItem().getInteger("ID"));
+    			showUsers(new ObjectId(courseId));
+    		}
+    	}
+    	
+    	@FXML
+    	private void removeStudent() {
+    		if(studentList.getSelectionModel().getSelectedIndex() != -1) {
+    			Connection.removeUserFromCourse("students",courseId, 
+    					studentList.getSelectionModel().getSelectedItem().getInteger("ID"));
+    			showUsers(new ObjectId(courseId));
+    		}
+
+    	}
+    	
+    	@FXML
+    	private void addTeacher() {
+    		System.out.println("add teacher");
+    		if(userList.getSelectionModel().getSelectedIndex() != -1) {
+    	        Connection.addUserToCourse("teachers",courseId, 
+    	        		userList.getSelectionModel().getSelectedItem().getInteger("ID"));
+    			showUsers(new ObjectId(courseId));
+    		}   
+    	}
+    	
+    	@FXML
+    	private void removeTeacher() {
+    		System.out.println("remove teacher");
+    		if(teacherList.getSelectionModel().getSelectedIndex() != -1) {
+    			Connection.removeUserFromCourse("teachers",courseId, 
+    					teacherList.getSelectionModel().getSelectedItem().getInteger("ID"));
+    			showUsers(new ObjectId(courseId));
+    		}  
+    	}
+    	
+    	
 }
