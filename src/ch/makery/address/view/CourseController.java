@@ -113,10 +113,13 @@ public class CourseController {
     			public void updateItem(Document user, boolean empty) {
     				super.updateItem(user, empty);
 
-    				if (user != null){
-    					setText(user.getString("first_name"));
+    				if (user == null || empty) {
+    	                setText(null);
+    	                setId(null);
+    	            } else {
+    	            	setText(user.getString("first_name"));
     					setId(user.getObjectId("_id").toString());
-    				}
+    	            }
     			}
     		});
     		
@@ -131,10 +134,13 @@ public class CourseController {
     			public void updateItem(Document user, boolean empty) {
     				super.updateItem(user, empty);
 
-    				if (user != null){
-    					setText(user.getString("first_name"));
+    				if (user == null || empty) {
+    	                setText(null);
+    	                setId(null);
+    	            } else {
+    	            	setText(user.getString("first_name"));
     					setId(user.getObjectId("_id").toString());
-    				}
+    	            }
     			}
     		});
     		
@@ -146,15 +152,18 @@ public class CourseController {
     		System.out.println(userArray);
     		userList.getItems().clear();
     		userList.getItems().addAll(userArray);
-    		userList.setCellFactory(lv -> new ListCell<Document>(){
+    		userList.setCellFactory(param -> new ListCell<Document>(){
     			@Override
-    			public void updateItem(Document user, boolean empty) {
+    			protected void updateItem(Document user, boolean empty) {
     				super.updateItem(user, empty);
 
-    				if (user != null){
-    					setText(user.getString("first_name"));
+    				if (user == null || empty) {
+    	                setText(null);
+    	                setId(null);
+    	            } else {
+    	            	setText(user.getString("first_name"));
     					setId(user.getObjectId("_id").toString());
-    				}
+    	            }
     			}
     		});
     	}
