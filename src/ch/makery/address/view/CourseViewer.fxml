@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -11,17 +17,17 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 
-<AnchorPane prefHeight="438.0" prefWidth="725.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.makery.address.view.CourseController">
+<AnchorPane prefHeight="440.0" prefWidth="807.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.makery.address.view.CourseController">
    <children>
-      <SplitPane dividerPositions="0.34854771784232363, 0.35684647302904565" prefHeight="300.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.3360995850622407" prefHeight="440.0" prefWidth="847.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-40.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <SplitPane dividerPositions="0.8732718894009217" orientation="VERTICAL" prefHeight="436.0" prefWidth="255.0">
+                  <SplitPane dividerPositions="0.8732718894009217" orientation="VERTICAL" prefHeight="436.0" prefWidth="267.0">
                     <items>
-                        <ScrollPane>
+                        <ScrollPane prefHeight="375.0" prefWidth="296.0">
                            <content>
-                              <GridPane fx:id="courses" prefHeight="380.0" prefWidth="253.0">
+                              <GridPane fx:id="courses" prefHeight="380.0" prefWidth="257.0">
                                 <columnConstraints>
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="121.0" minWidth="10.0" prefWidth="53.0" />
@@ -31,27 +37,42 @@
                         </ScrollPane>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="45.0" prefWidth="253.0">
                            <children>
-                              <Button layoutX="101.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleNewCourse" text="Create" />
+                              <Button layoutX="75.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleNewCourse" prefHeight="31.0" prefWidth="115.0" text="Create" />
                            </children>
                         </AnchorPane>
                     </items>
                   </SplitPane>
                </children>
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
-            <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" styleClass="background">
+            <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="438.0" prefWidth="502.0" styleClass="background">
                <children>
-                  <Label layoutX="203.0" layoutY="6.0" styleClass="label-header" text="Course Details:" AnchorPane.leftAnchor="203.0" AnchorPane.topAnchor="6.0" />
+                  <Label layoutX="203.0" layoutY="6.0" styleClass="label-header" text="Course Details:" AnchorPane.leftAnchor="203.0" AnchorPane.topAnchor="6.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="W_RESIZE" />
+                     </cursor>
+                     <effect>
+                        <Lighting>
+                           <bumpInput>
+                              <Shadow />
+                           </bumpInput>
+                           <light>
+                              <Light.Distant color="#0a0404" />
+                           </light>
+                        </Lighting>
+                     </effect></Label>
                   <Label layoutX="24.0" layoutY="32.0" styleClass="label-header" text="Title:" />
                   <Label layoutX="24.0" layoutY="60.0" styleClass="label-header" text="Description:" />
                   <Label layoutX="23.0" layoutY="163.0" styleClass="label-header" text="Users" />
                   <Label layoutX="337.0" layoutY="155.0" styleClass="label-header" text="Teachers" />
-                  <Label layoutX="341.0" layoutY="287.0" styleClass="label-header" text="Students" />
+                  <Label layoutX="341.0" layoutY="285.0" styleClass="label-header" text="Students" />
                   <TextField fx:id="titleField" layoutX="106.0" layoutY="28.0" prefHeight="25.0" prefWidth="309.0" />
-                  <TextArea fx:id="descriptionArea" layoutX="109.0" layoutY="60.0" prefHeight="55.0" prefWidth="309.0" />
+                  <TextArea fx:id="descriptionArea" layoutX="106.0" layoutY="60.0" prefHeight="55.0" prefWidth="309.0" />
                   <ListView fx:id="userList" layoutX="14.0" layoutY="187.0" prefHeight="216.0" prefWidth="183.0" />
-                  <ListView fx:id="teacherList" layoutX="273.0" layoutY="179.0" prefHeight="106.0" prefWidth="183.0" />
-                  <ListView fx:id="studentList" layoutX="273.0" layoutY="304.0" prefHeight="114.0" prefWidth="183.0" />
+                  <ListView fx:id="teacherList" layoutX="279.0" layoutY="179.0" prefHeight="106.0" prefWidth="183.0" />
+                  <ListView fx:id="studentList" layoutX="279.0" layoutY="303.0" prefHeight="114.0" prefWidth="183.0" />
                   <Button layoutX="205.0" layoutY="193.0" mnemonicParsing="false" onAction="#addTeacher" text="==&gt;" />
                   <Button layoutX="205.0" layoutY="232.0" mnemonicParsing="false" onAction="#removeTeacher" text="&lt;==" />
                   <Button layoutX="205.0" layoutY="329.0" mnemonicParsing="false" onAction="#addStudent" text="==&gt;" />
